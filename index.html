@@ -1,0 +1,48 @@
+<!--
+  HANDOFF — index.html (SubView)
+  Version: 1
+  Last updated: 2026-09-14
+
+  This round changed:
+    - Initial bare-bones build: reads docs/data/plan.json, auto-progresses
+      through the day on a fixed schedule, shows an always-available
+      Resources tab, supports activity types: resource-list, youtube,
+      slides, module (generic iframe placeholder).
+
+  Storage keys touched: none (reads static docs/data/plan.json only)
+
+  New/changed conventions (needs Project-Instructions.md update):
+    - none this round
+
+  Known issues / deferred:
+    - No editor UI yet — plan.json is hand-edited and pushed manually.
+    - "module" activity type is wired but not yet pointed at a real
+      docked-app SubView mode.
+    - No emergency-plans section yet.
+
+  Postmessage contract: none — this is a standalone static page, not
+  docked inside ClassroomScreen.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>VW Choir — Substitute Plans</title>
+<link rel="stylesheet" href="subview.css" />
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">VW Choir — Substitute Plans</div>
+    <div class="topbar-clock" id="clock"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="now" id="tab-now">Now</button>
+    <button class="tab-btn" data-tab="resources" id="tab-resources">Resources</button>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+<script src="subview.js"></script>
+</body>
+</html>

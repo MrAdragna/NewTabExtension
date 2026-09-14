@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "title": "VW Choir — Substitute Plans",
+    "lastPublished": "2026-09-14T09:00:00-04:00"
+  },
+  "schedule": [
+    {
+      "start": "08:00",
+      "end": "08:50",
+      "label": "Period 1",
+      "activity": "act-warmup"
+    },
+    {
+      "start": "08:55",
+      "end": "09:40",
+      "label": "Period 2",
+      "activity": "act-video"
+    },
+    {
+      "start": "09:45",
+      "end": "10:30",
+      "label": "Period 3",
+      "activity": "act-slides"
+    },
+    {
+      "start": "10:35",
+      "end": "11:20",
+      "label": "Period 4",
+      "activity": "act-module"
+    }
+  ],
+  "activities": {
+    "act-warmup": {
+      "type": "resource-list",
+      "title": "Warm-Up Routine",
+      "notes": "Have students sit in their usual seats and follow the warm-up sheet in order.",
+      "items": [
+        { "label": "Breathing exercise sheet (PDF)", "url": "https://example.com/warmup.pdf" },
+        { "label": "Vocal warm-up audio track", "url": "https://example.com/warmup.mp3" }
+      ]
+    },
+    "act-video": {
+      "type": "youtube",
+      "title": "Listening & Discussion",
+      "videoId": "dQw4w9WgXcQ",
+      "notes": "Watch the full video, then lead a short discussion: what did you notice about dynamics and breath control?"
+    },
+    "act-slides": {
+      "type": "slides",
+      "title": "Music Theory Review",
+      "slides": [
+        { "heading": "Today's Topic", "body": "We're reviewing time signatures. Click Next to move through each slide as a class." },
+        { "heading": "4/4 Time", "body": "Four beats per measure, quarter note gets one beat. Clap the rhythm on the board together." },
+        { "heading": "3/4 Time", "body": "Three beats per measure — think waltz. Try clapping this one too." },
+        { "heading": "Wrap-Up", "body": "Ask students to name a song in each time signature before moving on." }
+      ]
+    },
+    "act-module": {
+      "type": "module",
+      "title": "Sight Reading Practice",
+      "url": "about:blank",
+      "notes": "Placeholder — will point at the Sight Reading app's SubView mode once that's built."
+    }
+  },
+  "alwaysAvailable": [
+    {
+      "label": "Classroom Expectations",
+      "type": "resource-list",
+      "items": [
+        { "label": "Rules poster (PDF)", "url": "#" }
+      ]
+    },
+    {
+      "label": "Seating Chart",
+      "type": "resource-list",
+      "items": [
+        { "label": "Seating chart (image)", "url": "#" }
+      ]
+    }
+  ]
+}
