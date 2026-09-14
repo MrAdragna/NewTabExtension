@@ -5,7 +5,8 @@
     plan: null,
     activeTab: "now",
     slideIndex: 0,
-    currentActivityId: null
+    currentActivityId: null,
+    viewedIndex: null // null = auto-follow the current period; a number = manually previewing that schedule row
   };
 
   var els = {
@@ -13,7 +14,8 @@
     clock: document.getElementById("clock"),
     topbarTitle: document.getElementById("topbar-title"),
     tabNow: document.getElementById("tab-now"),
-    tabResources: document.getElementById("tab-resources")
+    tabResources: document.getElementById("tab-resources"),
+    scheduleList: document.getElementById("schedule-list")
   };
 
   // ---- time helpers ----
@@ -31,32 +33,33 @@
     return h * 60 + m;
   }
 
-  function findCurrentScheduleEntry(schedule) {
-    if (!Array.isArray(schedule)) return null;
+  function findCurrentScheduleIndex(schedule) {
+    if (!Array.isArray(schedule)) return -1;
     var now = minutesNow();
     for (var i = 0; i < schedule.length; i++) {
       var entry = schedule[i];
       var start = parseHHMM(entry.start);
       var end = parseHHMM(entry.end);
       if (start === null || end === null) continue;
-      if (now >= start && now < end) return entry;
+      if (now >= start && now < end) return i;
     }
-    return null;
+    return -1;
   }
 
-  function findNextScheduleEntry(schedule) {
-    if (!Array.isArray(schedule)) return null;
+  function findNextScheduleIndex(schedule) {
+    if (!Array.isArray(schedule)) return -1;
     var now = minutesNow();
-    var next = null;
+    var nextIndex = -1;
+    var nextStart = null;
     for (var i = 0; i < schedule.length; i++) {
-      var entry = schedule[i];
-      var start = parseHHMM(entry.start);
+      var start = parseHHMM(schedule[i].start);
       if (start === null) continue;
-      if (start > now && (next === null || start < parseHHMM(next.start))) {
-        next = entry;
+      if (start > now && (nextStart === null || start < nextStart)) {
+        nextIndex = i;
+        nextStart = start;
       }
     }
-    return next;
+    return nextIndex;
   }
 
   function formatClock() {
@@ -233,29 +236,111 @@
       return;
     }
 
-    var entry = findCurrentScheduleEntry(plan.schedule);
-    if (!entry) {
-      var next = findNextScheduleEntry(plan.schedule);
-      var sub = next
-        ? "Next up: " +
-          escapeHtml(next.label || "") +
-          " at " +
-          formatHHMMDisplay(next.start) +
-          ". Check the Resources tab in the meantime."
-        : "No more scheduled activities today. Check the Resources tab.";
+    var schedule = plan.schedule || [];
+    var currentIndex = findCurrentScheduleIndex(schedule);
+    var showIndex = state.viewedIndex !== null ? state.viewedIndex : currentIndex;
+
+    if (showIndex === -1 || !schedule[showIndex]) {
+      var nextIndex = findNextScheduleIndex(schedule);
+      var sub =
+        nextIndex !== -1
+          ? "Next up: " +
+            escapeHtml(schedule[nextIndex].label || "") +
+            " at " +
+            formatHHMMDisplay(schedule[nextIndex].start) +
+            ". Check the Resources tab in the meantime."
+          : "No more scheduled activities today. Check the Resources tab.";
       els.content.innerHTML = renderEmptyState("No activity right now", sub);
       state.currentActivityId = null;
+      renderScheduleNav();
       return;
     }
 
+    var entry = schedule[showIndex];
     var activity = plan.activities && plan.activities[entry.activity];
+
     if (entry.activity !== state.currentActivityId) {
       state.slideIndex = 0;
       state.currentActivityId = entry.activity;
     }
 
-    els.content.innerHTML = renderActivity(activity);
+    var banner = "";
+    if (showIndex !== currentIndex) {
+      banner =
+        '<div class="preview-banner"><span>Previewing ' +
+        escapeHtml(entry.label || "this period") +
+        " — this isn't the current class.</span>" +
+        '<button class="btn" id="back-to-now-btn">Back to current class</button></div>';
+    }
+
+    els.content.innerHTML = banner + renderActivity(activity);
     wireActivityControls(activity);
+
+    var backBtn = document.getElementById("back-to-now-btn");
+    if (backBtn) {
+      backBtn.addEventListener("click", function () {
+        state.viewedIndex = null;
+        render();
+      });
+    }
+
+    renderScheduleNav();
+  }
+
+  function renderScheduleNav() {
+    var plan = state.plan;
+    var schedule = (plan && plan.schedule) || [];
+    if (schedule.length === 0) {
+      els.scheduleList.innerHTML =
+        '<li class="empty-state-sub" style="padding:4px;">No schedule set.</li>';
+      return;
+    }
+
+    var currentIndex = findCurrentScheduleIndex(schedule);
+    var nextIndex = currentIndex === -1 ? findNextScheduleIndex(schedule) : -1;
+    var now = minutesNow();
+    var showIndex = state.viewedIndex !== null ? state.viewedIndex : currentIndex;
+
+    var html = "";
+    schedule.forEach(function (entry, i) {
+      var start = parseHHMM(entry.start);
+      var end = parseHHMM(entry.end);
+      var status = "future";
+      if (start !== null && end !== null) {
+        if (now >= end) status = "elapsed";
+        else if (i === currentIndex) status = "current";
+      }
+      var classes = "schedule-row " + status;
+      if (i === showIndex && i !== currentIndex) classes += " previewing";
+
+      html +=
+        '<li class="' +
+        classes +
+        '" data-index="' +
+        i +
+        '">' +
+        '<p class="row-label">' +
+        escapeHtml(entry.label || "Period " + (i + 1)) +
+        (i === nextIndex ? ' <span class="badge-next">Next</span>' : "") +
+        "</p>" +
+        '<p class="row-time">' +
+        formatHHMMDisplay(entry.start) +
+        " – " +
+        formatHHMMDisplay(entry.end) +
+        "</p>" +
+        "</li>";
+    });
+
+    els.scheduleList.innerHTML = html;
+
+    var rows = els.scheduleList.querySelectorAll(".schedule-row");
+    rows.forEach(function (row) {
+      row.addEventListener("click", function () {
+        var idx = parseInt(row.getAttribute("data-index"), 10);
+        state.viewedIndex = idx;
+        setTab("now");
+      });
+    });
   }
 
   function renderResourcesTab() {
@@ -280,6 +365,7 @@
     });
     html += "</div>";
     els.content.innerHTML = html;
+    renderScheduleNav();
   }
 
   function wireActivityControls(activity) {
@@ -318,6 +404,7 @@
   }
 
   els.tabNow.addEventListener("click", function () {
+    state.viewedIndex = null;
     setTab("now");
   });
   els.tabResources.addEventListener("click", function () {

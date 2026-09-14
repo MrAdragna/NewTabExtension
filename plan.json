@@ -5,7 +5,7 @@
   },
   "schedule": [
     {
-      "start": "08:20",
+      "start": "08:00",
       "end": "08:50",
       "label": "Period 1",
       "activity": "act-warmup"

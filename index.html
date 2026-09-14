@@ -1,13 +1,18 @@
 <!--
   HANDOFF — index.html (SubView)
-  Version: 1
+  Version: 2 (prior: 1, see "index (revert).html" if included this round)
   Last updated: 2026-09-14
 
   This round changed:
-    - Initial bare-bones build: reads docs/data/plan.json, auto-progresses
-      through the day on a fixed schedule, shows an always-available
-      Resources tab, supports activity types: resource-list, youtube,
-      slides, module (generic iframe placeholder).
+    - Always-visible schedule sidebar (left column) listing every period
+      in order with three visual states: elapsed (dimmed + strikethrough),
+      current (info-highlighted), future (normal), plus a "Next" badge on
+      the soonest upcoming period during a gap. Visible on both the Now
+      and Resources tabs.
+    - Sidebar rows are clickable to preview any period's activity; a
+      warning-colored banner + "Back to current class" button appears
+      whenever the previewed period isn't the live one. Clicking the Now
+      tab always clears the preview and returns to the live period.
 
   Storage keys touched: none (reads static docs/data/plan.json only)
 
@@ -37,11 +42,19 @@
     <div class="topbar-title" id="topbar-title">VW Choir — Substitute Plans</div>
     <div class="topbar-clock" id="clock"></div>
   </div>
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="now" id="tab-now">Now</button>
-    <button class="tab-btn" data-tab="resources" id="tab-resources">Resources</button>
+  <div class="body">
+    <aside class="schedule-nav">
+      <p class="section-label">Today's Schedule</p>
+      <ul class="schedule-list" id="schedule-list"></ul>
+    </aside>
+    <div class="main">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="now" id="tab-now">Now</button>
+        <button class="tab-btn" data-tab="resources" id="tab-resources">Resources</button>
+      </div>
+      <div class="content" id="content"></div>
+    </div>
   </div>
-  <div class="content" id="content"></div>
 </div>
 <script src="subview.js"></script>
 </body>
